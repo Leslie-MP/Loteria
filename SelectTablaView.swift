@@ -21,8 +21,8 @@ struct TablaCellView: View{
     }
 }
 struct SelectTablaView: View {
-    @State var selectedTable: Int = 0
-    @State var shouldGoToTabla: Bool = false
+    @State var selectedTable: Int = 1
+    @State var shouldGoToSettings: Bool = false
     var shouldStartGame: Bool
     
     init(shouldStartGame: Bool = false) {
@@ -31,8 +31,8 @@ struct SelectTablaView: View {
     
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
-            Text("Select your Table")
-                .font(.system(size: 96))
+            Text(Strings.SelectTablaView.select)
+                .font(.extraLargeBold)
                 .foregroundColor(.black)
                 .shadow(radius:5)
                 .padding(.top, 36)
@@ -84,16 +84,16 @@ struct SelectTablaView: View {
             Spacer(minLength: 20)
             Button {
                 print("Next")
-                shouldGoToTabla = true
+                shouldGoToSettings = true
             } label: {
-                OptionView(title: "Next", imageName: "arrow.right")
+                OptionView(title: Strings.SelectTablaView.button, imageName: "arrow.right")
             }
 
             }
         .padding(16)
-        .background(Color(red: 254.0/255.0, green: 255.0/255.0, blue: 86.0/255.0))
+        .background(Image("background"))
         .overlay(
-            NavigationLink("", destination: PlayCardView(tablaNo: selectedTable),  isActive: $shouldGoToTabla)
+            NavigationLink("", destination: SettingsView(tableNumber: selectedTable),  isActive: $shouldGoToSettings)
         )
     }
 }

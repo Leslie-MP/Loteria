@@ -8,10 +8,10 @@
 import Foundation
 
 class Tabla{
-//    static var shared = GameManager()
     var cards:[[Card]] = []
     var values:[[String]]
     var number: Int
+    var beansSoFar = 0
     
     fileprivate init(values: [[String]], number: Int) {
         self.values = values
@@ -25,22 +25,55 @@ class Tabla{
         self.number = number
     }
     
-    static func withTabla(tablaNo: Int) -> Tabla {
-        switch (tablaNo) {
-        case 1: return Tabla.tablaUno
-        case 2: return Tabla.tablaDos
-        case 3: return Tabla.tablaTres
-        case 4: return Tabla.tablaCuatro
-        case 5: return Tabla.tablaCinco
-        case 6: return Tabla.tablaSeis
-        case 7: return Tabla.tablaSiete
-        case 8: return Tabla.tablaOcho
-        case 9: return Tabla.tablaNueve
-            
-        default: return Tabla.tablaDiez
+    func playBean(newCard: Card){
+        for row in cards{
+            for card in row{
+                if card.number == newCard.number{
+                    card.isSelected = true
+                    beansSoFar += 1
+                    
+                    didWin(count: beansSoFar)
+                    return
+                }
+            }
         }
     }
     
+    func checkIfWon() {
+        var count = 0
+        
+        for row in cards {
+            for card in row {
+                if card.isSelected {
+                    count += 1;
+                }
+            }
+        }
+        didWin(count: count)
+      
+    }
+    
+    private func didWin(count: Int){
+        
+        if count >= 16 {
+            GameAppState.shared.setGameWon()
+            
+            cleanUp()
+        }
+    }
+    
+    func cleanUp() {
+        beansSoFar = 0
+        for row in cards {
+            for card in row {
+                card.isSelected = false
+            }
+        }
+    }
+    
+}
+
+extension Tabla{
     static let tablaUno:Tabla = {
         let values = [
         ["1","2","3","4"],
@@ -150,5 +183,20 @@ class Tabla{
         
         return Tabla(values: values, number: 10)
     }()
-
+    
+    static func withTabla(tablaNo: Int) -> Tabla {
+        switch (tablaNo) {
+        case 1: return Tabla.tablaUno
+        case 2: return Tabla.tablaDos
+        case 3: return Tabla.tablaTres
+        case 4: return Tabla.tablaCuatro
+        case 5: return Tabla.tablaCinco
+        case 6: return Tabla.tablaSeis
+        case 7: return Tabla.tablaSiete
+        case 8: return Tabla.tablaOcho
+        case 9: return Tabla.tablaNueve
+            
+        default: return Tabla.tablaDiez
+        }
+    }
 }

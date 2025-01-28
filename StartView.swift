@@ -9,17 +9,16 @@ import SwiftUI
 
 struct StartView: View {
     
-    
     var body: some View {
         if #available(iOS 16.0, *) {
             NavigationStack {
                 VStack {
                     Spacer(minLength: 200)
-                    Text("Loteria")
-                        .font(.system(size: 96))
+                    Text(Strings.AppName)
+                        .font(.extraLargeBold)
                         .foregroundColor(.pink)
                         .shadow(radius:5)
-                    Text("Mexican Tradition").font(.system(size: 64))
+                    Text(Strings.StartView.subtitle).font(.extraLargeRegular)
                     HStack{
                         CardView(card: Card(cardMode: .display, number: "47"))
                             .rotationEffect(.degrees(-15))
@@ -31,12 +30,12 @@ struct StartView: View {
                     NavigationLink {
                         MenuView()
                     } label: {
-                        Text( " Start ").font(.system(size: 64, weight: .bold, design: .default))
+                        Text(Strings.StartView.startButton).font(.extraLargeBold)
                             .foregroundColor(.pink)
                     }
                     Spacer(minLength: 200)
                 }
-                .background(Color(red: 254.0/255.0, green: 255.0/255.0, blue: 86.0/255.0))
+                .background(Image("background"))
             } .navigationDestination(for: String.self) { hash in
                 TablaView(tabla: .tablaCinco)
             }

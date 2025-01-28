@@ -15,96 +15,139 @@ struct PlayCardView: View {
     var tablaNo: Int
     
     @ObservedObject var gameAppState: GameAppState
+    @State var tabla: Tabla
+    @State var showWonAlert: Bool = false
     
     init(tablaNo: Int) {
         self.tablaNo = tablaNo
+        self.tabla = Tabla.withTabla(tablaNo: tablaNo)
         self.gameAppState = GameAppState.shared
     }
     
     var body: some View {
-        VStack(alignment: .center) {
-            VStack (alignment: .leading){
-                HStack {
-                    Text("Game on!")
-                    Spacer()
-                    Text(gameAppState.currCard.name)
-                }
-                HStack {
-                    ZStack {
-                        CardView(card: Card(cardMode: .display, number: "0"))
-                            .shadow(radius: 10)
-                            .offset(x: 0, y:0)
-                        CardView(card: Card(cardMode: .display, number: "0"))
-                            .shadow(radius: 10)
-                            .offset(x: 50, y:0)
-                        CardView(card: Card(cardMode: .display, number: "0"))
-                            .shadow(radius: 10)
-                            .offset(x: 100, y:0)
-                    }
-                    Spacer()
-                    CardView(card: gameAppState.currCard)
-
-                }
-            }.frame(maxHeight: Constants.screenHeight * 0.20)
-                .padding(.vertical, 24)
-            HStack(alignment: .center){
-                VStack(alignment: .leading) {
-                    Spacer()
-                    VStack {
-                        TablaView(tabla: Tabla.withTabla(tablaNo: tablaNo))
-                            .aspectRatio(contentMode: .fit)
-
-                    }
-                    .background(Color.white)
-                    Spacer()
-                }.frame(maxWidth: .infinity)
-                Spacer()
-                VStack(alignment: .center, spacing: 4) {
-                    Button {
-                        print("Next Card")
-                        GameAppState.shared.nextCard()
-                    } label: {
-                        VStack(alignment: .center, spacing: 0){
-                            Image(systemName:"chevron.forward.2")
-                            .fixedSize()
-                            .frame(maxWidth: 100)
-                            .aspectRatio(1.0, contentMode: .fit)
-                            Text("Next Card")
+        VStack(alignment: .leading, spacing: 0) {
+            GeometryReader { proxy in
+                VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(alignment: .center, spacing: 0) {
+                            Text(Strings.PlayCardView.game)
+                                .font(.smallRegular)
+                            Spacer()
+                            Text("\(gameAppState.timeCount)s").font(.smallBold)
+                            Spacer()
+                            Text(gameAppState.currCard.name)
+                                .font(.smallBold)
                         }
-                        .fixedSize()
-                        .frame(maxWidth: 120, maxHeight: 120)
-                        .background(Color.white)
-                        
-                    }
-                    .padding(.vertical, 12)
-                    Button {
-                        print("Loteria")
-                    } label: {
-                        VStack(alignment: .center, spacing: 0){
-                            Image(systemName:"party.popper.fill")
-                            .fixedSize()
-                            .frame(maxWidth: 100)
-                            .aspectRatio(1.0, contentMode: .fill)
-                            Text("Loteria")
+                        HStack(alignment: .center, spacing: 0) {
+                            CardView(card: gameAppState.prev3Card)
+                                .shadow(radius: 10)
+                                .offset(x: 0, y:0)
+                            CardView(card: gameAppState.prev2Card)
+                                .shadow(radius: 10)
+                                .offset(x: -50, y:0)
+                            CardView(card: gameAppState.prev1Card)
+                                .shadow(radius: 10)
+                                .offset(x: -100, y:0)
+                            Spacer()
+                            CardView(card: gameAppState.currCard)
+                            
                         }
-                        .frame(maxHeight: .infinity)
                     }
-                    .frame(maxWidth: 120)
-                    .background(Color.white)
-                    .aspectRatio(contentMode: .fill)
-                    .padding(.vertical, 12)
-
+                    .padding(16)
+                    .frame(width: proxy.size.width, height: proxy.size.height * 0.25, alignment: .leading)
+                    
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(alignment: .top, spacing: 4) {
+                            HStack {
+                                
+                                VStack {
+                                    TablaView(tabla: Tabla.withTabla(tablaNo: tablaNo))
+                                        .frame(height: proxy.size.height * 0.75)
+                                        .fixedSize()
+                                        .padding(10)
+                                }
+                                .background(Color.white)
+                            }
+                            .frame(width: proxy.size.width * 0.80)
+                            VStack(alignment: .center, spacing: 4) {
+                                Spacer()
+                                Button {
+                                    
+                                    
+                                    if gameAppState.isGameRunning == false{
+                                        print("Star Game")
+                                        gameAppState.startGame()
+                                    }else{
+                                        gameAppState.nextCard()
+                                        print("Next Card")
+                                    }
+                                } label: {
+                                    VStack(alignment: .center, spacing: 4){
+                                        Image(systemName:"chevron.forward.2")
+                                            .resizable()
+                                            .aspectRatio(1.0, contentMode: .fit)
+                                        Text(Strings.PlayCardView.next)
+                                            .font(.mediumBold)
+                                    }
+                                    .padding(36)
+                                    .background(Color.white)
+                                    .cornerRadius(10)
+                                    .clipped()
+                                }
+                                .padding(.horizontal, 36)
+                                Button {
+                                    print("Loteria")
+                                    tabla.checkIfWon()
+                                } label: {
+                                    VStack(alignment: .center, spacing: 0){
+                                        Image(systemName:"party.popper.fill")
+                                            .resizable()
+                                            .aspectRatio(1.0, contentMode: .fit)
+                                            .frame(height: 48)
+                                        ForEach(["L","o","t","e","r","i","a","!"], id: \.self) { letter in
+                                            Text(letter)
+                                                .font(.largeBold)
+                                        }
+                                        
+                                    }
+                                    .padding(36)
+                                    .background(Color.white)
+                                    .cornerRadius(10)
+                                    .clipped()
+                                    
+                                    
+                                }
+                                .padding(36)
+                                Spacer(minLength: 16)
+                            }
+                            .frame(width: proxy.size.width * 0.20)
+                        }
+                    }
+                    .frame(width: proxy.size.width, height: proxy.size.height * 0.75, alignment: .leading)
+                    
                 }
-                .background(Color.red)
-                .aspectRatio(contentMode: .fill)
+                .frame(width: proxy.size.width, height: proxy.size.height, alignment: .leading)
+                
             }
-            .background(Color.blue)
+            
+        }.onAppear {
+            tabla = Tabla.withTabla(tablaNo: tablaNo)
         }
-        .padding(16)
-         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-         .background(Color(red: 254.0/255.0, green: 255.0/255.0, blue: 86.0/255.0)).onAppear{
-             GameAppState.shared.statGame()
-         }
+        .onDisappear {
+            tabla.cleanUp()
+            gameAppState.endGame()
+        }
+        .onChange(of: gameAppState.didWin, perform: { newValue in
+            showWonAlert = newValue
+        })
+        .overlay(content: {
+            EmptyView()
+                .alertMessageView(isPresented: $showWonAlert, title: Strings.PlayCardView.youWonTitle, subtitle: Strings.PlayCardView.youWonSubtitle, actionTitle: Strings.PlayCardView.playAgain) {
+                    gameAppState.startGame()
+                }
+        })
+        .background(Image("background"))
     }
 }
 
